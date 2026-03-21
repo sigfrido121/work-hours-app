@@ -1,6 +1,6 @@
 'use client';
 
-export default function CalendarView({ entries, onEdit, onDelete, currentDate, onDateChange }) {
+export default function CalendarView({ entries, onEdit, onDelete, currentDate, onDateChange, deletingId }) {
     const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = (year, month) => {
         const day = new Date(year, month, 1).getDay();
@@ -65,9 +65,13 @@ export default function CalendarView({ entries, onEdit, onDelete, currentDate, o
                     <div className="day-content" onClick={() => onEdit(entry)}>
                         <div className="day-total">{dayTotalText}</div>
                         <div className="day-actions">
-                            <button onClick={(e) => { e.stopPropagation(); onDelete(entry._id); }} className="btn-mini-delete" title="Eliminar">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </button>
+                            {deletingId === entry._id ? (
+                                <span className="btn-mini-loading">...</span>
+                            ) : (
+                                <button onClick={(e) => { e.stopPropagation(); onDelete(entry._id); }} className="btn-mini-delete" title="Eliminar">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}

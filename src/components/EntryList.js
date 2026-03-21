@@ -1,4 +1,4 @@
-export default function EntryList({ entries, onDelete, onEdit }) {
+export default function EntryList({ entries, onDelete, onEdit, deletingId }) {
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             weekday: 'long',
@@ -55,13 +55,17 @@ export default function EntryList({ entries, onDelete, onEdit }) {
                             >
                                 Editar
                             </button>
-                            <button
-                                onClick={() => onDelete(entry._id)}
-                                className="text-sm opacity-70"
-                                style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer' }}
-                            >
-                                Eliminar
-                            </button>
+                            {deletingId === entry._id ? (
+                                <span className="text-sm opacity-50">Eliminando...</span>
+                            ) : (
+                                <button
+                                    onClick={() => onDelete(entry._id)}
+                                    className="text-sm opacity-70"
+                                    style={{ color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer' }}
+                                >
+                                    Eliminar
+                                </button>
+                            )}
                         </div>
                     </div>
 

@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function TimeTracker({ onEntryCreated }) {
     const [title, setTitle] = useState('');
     const [activeEntry, setActiveEntry] = useState(null);
     const [elapsed, setElapsed] = useState(0);
+    const intervalRef = useRef(null);
 
-    // Sync active entry on mount
     useEffect(() => {
         fetch('/api/entries')
             .then(res => res.json())
@@ -18,19 +18,28 @@ export default function TimeTracker({ onEntryCreated }) {
             });
     }, []);
 
-    // Timer effect
     useEffect(() => {
-        let interval;
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+        
         if (activeEntry) {
-            interval = setInterval(() => {
+            const calculateElapsed = () => {
                 const start = new Date(activeEntry.startTime).getTime();
                 const now = new Date().getTime();
-                setElapsed(Math.floor((now - start) / 1000));
+                return Math.floor((now - start) / 1000);
+            };
+            
+            intervalRef.current = setInterval(() => {
+                setElapsed(calculateElapsed());
             }, 1000);
-        } else {
-            setElapsed(0);
         }
-        return () => clearInterval(interval);
+        
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, [activeEntry]);
 
     const formatTime = (seconds) => {

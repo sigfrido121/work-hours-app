@@ -8,6 +8,8 @@ export default function ShiftForm({ onEntrySaved, editingEntry, onCancel }) {
     const [afternoon, setAfternoon] = useState({ start: '14:00', end: '17:30' });
     const [note, setNote] = useState('');
     const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
 
     useEffect(() => {
         if (editingEntry) {
@@ -34,18 +36,19 @@ export default function ShiftForm({ onEntrySaved, editingEntry, onCancel }) {
         };
 
         if (morning.enabled && getMinutes(morning.end) <= getMinutes(morning.start)) {
-            alert('La salida de la mañana debe ser posterior a la entrada.');
+            setError('La salida de la mañana debe ser posterior a la entrada.');
             return;
         }
         if (afternoon.enabled && getMinutes(afternoon.end) <= getMinutes(afternoon.start)) {
-            alert('La salida de la tarde debe ser posterior a la entrada.');
+            setError('La salida de la tarde debe ser posterior a la entrada.');
             return;
         }
         if (!morning.enabled && !afternoon.enabled) {
-            alert('Debes habilitar al menos un turno.');
+            setError('Debes habilitar al menos un turno.');
             return;
         }
 
+        setError(null);
         setSaving(true);
 
         try {
@@ -64,18 +67,19 @@ export default function ShiftForm({ onEntrySaved, editingEntry, onCancel }) {
             });
             const data = await res.json();
             if (data.success) {
+                setSuccess(editingEntry ? 'Jornada actualizada correctamente' : 'Jornada guardada correctamente');
                 onEntrySaved();
-                // Reset form
                 if (!editingEntry) {
                     setMorning({ start: '08:00', end: '12:00', enabled: true });
                     setAfternoon({ start: '14:00', end: '17:30', enabled: true });
                     setNote('');
                 }
+                setTimeout(() => setSuccess(null), 3000);
             } else {
-                alert('Error al guardar: ' + data.error);
+                setError(data.error || 'Error al guardar');
             }
         } catch (err) {
-            alert('Error de conexión');
+            setError('Error de conexión. Inténtalo de nuevo.');
         } finally {
             setSaving(false);
         }
@@ -83,6 +87,16 @@ export default function ShiftForm({ onEntrySaved, editingEntry, onCancel }) {
 
     return (
         <div className="card mb-4" style={editingEntry ? { borderColor: 'var(--primary)', borderWidth: '2px' } : {}}>
+            {error && (
+                <div className="mb-4 p-3 rounded-lg bg-danger-soft text-danger" role="alert">
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="mb-4 p-3 rounded-lg bg-success-soft text-success" role="alert">
+                    {success}
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ShiftForm from '@/components/ShiftForm';
 import EntryList from '@/components/EntryList';
 import StatsDashboard from '@/components/StatsDashboard';
@@ -11,26 +11,40 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [editingEntry, setEditingEntry] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewType, setViewType] = useState('calendar'); // Default to calendar
+  const [viewType, setViewType] = useState('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [deletingId, setDeletingId] = useState(null);
+  const [pagination, setPagination] = useState({ page: 1, limit: 31, total: 0, totalPages: 0 });
 
-  const fetchEntries = async () => {
-    const res = await fetch('/api/entries');
+  const fetchEntries = useCallback(async (page = 1) => {
+    const res = await fetch(`/api/entries?page=${page}&limit=${pagination.limit}`);
     const data = await res.json();
     if (data.success) {
       setEntries(data.data);
+      setPagination(data.pagination);
     }
     setLoading(false);
-  };
+  }, [pagination.limit]);
 
   useEffect(() => {
     fetchEntries();
-  }, []);
+  }, [fetchEntries]);
 
   const handleDelete = async (id) => {
     if (!confirm('¿Seguro que quieres eliminar este registro?')) return;
-    const res = await fetch(`/api/entries/${id}`, { method: 'DELETE' });
-    if (res.ok) fetchEntries();
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/entries/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        if (entries.length === 1 && pagination.page > 1) {
+          fetchEntries(pagination.page - 1);
+        } else {
+          fetchEntries(pagination.page);
+        }
+      }
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleEdit = (entry) => {
@@ -85,7 +99,7 @@ export default function Home() {
 
       <ShiftForm
         onEntrySaved={() => {
-          fetchEntries();
+          fetchEntries(pagination.page);
           setEditingEntry(null);
         }}
         editingEntry={editingEntry}
@@ -130,9 +144,33 @@ export default function Home() {
             onDelete={handleDelete}
             currentDate={currentDate}
             onDateChange={setCurrentDate}
+            deletingId={deletingId}
           />
         ) : (
-          <EntryList entries={filteredEntries} onDelete={handleDelete} onEdit={handleEdit} />
+          <>
+            <EntryList entries={filteredEntries} onDelete={handleDelete} onEdit={handleEdit} deletingId={deletingId} />
+            {pagination.totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                  className="btn btn-sm btn-outline"
+                  disabled={pagination.page <= 1}
+                  onClick={() => fetchEntries(pagination.page - 1)}
+                >
+                  Anterior
+                </button>
+                <span className="text-sm text-muted">
+                  Página {pagination.page} de {pagination.totalPages}
+                </span>
+                <button
+                  className="btn btn-sm btn-outline"
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => fetchEntries(pagination.page + 1)}
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
+          </>
         )
       )}
     </main>
