@@ -5,18 +5,18 @@ export default function StatsDashboard({ entries }) {
     const stats = calculateStats(entries);
 
     return (
-        <div className="grid-3 gap-4 mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-            <div className="card stat-card">
-                <div className="text-xs text-muted uppercase font-bold mb-1">Total Acumulado</div>
-                <div className="text-2xl font-black color-primary">{stats.total}</div>
+        <div className="stats-grid">
+            <div className="stat-card">
+                <div className="stat-label">Acumulado</div>
+                <div className="stat-value c-primary">{stats.total}</div>
             </div>
-            <div className="card stat-card">
-                <div className="text-xs text-muted uppercase font-bold mb-1">Esta Semana</div>
-                <div className="text-2xl font-black color-accent">{stats.weekTotal}</div>
+            <div className="stat-card">
+                <div className="stat-label">Esta semana</div>
+                <div className="stat-value c-amber">{stats.weekTotal}</div>
             </div>
-            <div className="card stat-card">
-                <div className="text-xs text-muted uppercase font-bold mb-1">Días Registrados</div>
-                <div className="text-2xl font-black">{stats.count}</div>
+            <div className="stat-card">
+                <div className="stat-label">Días</div>
+                <div className="stat-value c-text">{stats.count}</div>
             </div>
         </div>
     );
