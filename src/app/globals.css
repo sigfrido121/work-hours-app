@@ -606,3 +606,98 @@ body {
   from { transform: translateX(-50%) translateY(100%); }
   to   { transform: translateX(-50%) translateY(0); }
 }
+
+/* ── Auth / Login ─────────────────────────────────────────── */
+.login-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+}
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  width: min(360px, 90vw);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+.login-title    { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+.login-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.login-btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.15s;
+}
+.login-btn-google:hover   { opacity: 0.9; }
+.login-btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Setup form ───────────────────────────────────────────── */
+.setup-form  { display: flex; flex-direction: column; gap: 0.75rem; }
+.setup-input {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.setup-error { color: #f87171; font-size: 0.85rem; }
+
+/* ── Header actions ───────────────────────────────────────── */
+.header-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+/* ── Admin panel ──────────────────────────────────────────── */
+.admin-grid        { display: flex; gap: 1rem; padding: 1rem; flex-wrap: wrap; }
+.admin-users       { flex: 0 0 280px; display: flex; flex-direction: column; gap: 0.5rem; }
+.admin-user-row    {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.admin-user-row.selected { border-color: var(--accent); }
+.admin-avatar      { width: 32px; height: 32px; border-radius: 50%; }
+.admin-user-info   { flex: 1; display: flex; flex-direction: column; }
+.admin-user-name   { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+.admin-user-email  { font-size: 0.75rem; color: var(--text-muted); }
+.admin-badge       { font-size: 0.7rem; padding: 2px 6px; background: var(--accent); color: #000; border-radius: 4px; }
+.admin-toggle-btn  {
+  font-size: 0.72rem; padding: 3px 7px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+}
+.admin-detail       { flex: 1; min-width: 0; }
+.admin-detail-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; }
+.admin-total        { color: var(--accent); }
+.admin-entries      { display: flex; flex-direction: column; gap: 0.4rem; }
+.admin-entry-row    {
+  display: flex; gap: 0.75rem; align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.admin-entry-date  { font-size: 0.85rem; color: var(--text-muted); min-width: 110px; }
+.admin-entry-shift { font-size: 0.85rem; color: var(--text-primary); background: var(--bg-base); padding: 2px 6px; border-radius: 4px; }
+.admin-empty       { color: var(--text-muted); font-size: 0.9rem; }
