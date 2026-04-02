@@ -1,16 +1,17 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import authConfig from '@/auth.config';
 import dbConnect from '@/lib/db';
 import User from '@/lib/models/User';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
@@ -36,7 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return token;
     },
-
     async session({ session, token }) {
       session.user.id              = token.userId;
       session.user.isAdmin         = token.isAdmin;
@@ -45,9 +45,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.lastName        = token.lastName;
       return session;
     },
-  },
-
-  pages: {
-    signIn: '/login',
   },
 });
