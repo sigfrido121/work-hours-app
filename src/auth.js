@@ -12,16 +12,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
-    // Runs when a JWT is created or updated.
-    // On first sign-in (account != null) we upsert the user in MongoDB
-    // and store all needed fields in the token so session callback is cheap.
     async jwt({ token, account, profile }) {
       if (account && profile) {
         await dbConnect();
         const dbUser = await User.findOneAndUpdate(
           { googleId: account.providerAccountId },
           {
-            : {
+            $setOnInsert: {
               googleId: account.providerAccountId,
               email:    token.email,
               avatar:   profile.picture ?? '',
@@ -40,7 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
 
-    // Exposes token fields to the client via useSession() / auth()
     async session({ session, token }) {
       session.user.id              = token.userId;
       session.user.isAdmin         = token.isAdmin;
