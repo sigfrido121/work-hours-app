@@ -16,6 +16,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account, profile }) {
       if (account && profile) {
         await dbConnect();
+        const userCount   = await User.countDocuments();
+        const isFirstUser = userCount === 0;
         const dbUser = await User.findOneAndUpdate(
           { googleId: account.providerAccountId },
           {
@@ -23,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               googleId: account.providerAccountId,
               email:    token.email,
               avatar:   profile.picture ?? '',
-              isAdmin:  false,
+              isAdmin:  isFirstUser,
               profileComplete: false,
             },
           },
