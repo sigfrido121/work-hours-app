@@ -29,25 +29,25 @@ export default function SetupPage() {
   };
 
   return (
-    <div className=login-wrapper>
-      <div className=login-card>
-        <h1 className=login-title>Bienvenido</h1>
-        <p className=login-subtitle>Completa tu perfil para continuar</p>
-        <form onSubmit={handleSubmit} className=setup-form>
+    <div className="login-wrapper">
+      <div className="login-card">
+        <h1 className="login-title">Bienvenido</h1>
+        <p className="login-subtitle">Completa tu perfil para continuar</p>
+        <form onSubmit={handleSubmit} className="setup-form">
           <input
-            className=setup-input
-            placeholder=Nombre
+            className="setup-input"
+            placeholder="Nombre"
             value={form.firstName}
             onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
           />
           <input
-            className=setup-input
-            placeholder=Apellido
+            className="setup-input"
+            placeholder="Apellido"
             value={form.lastName}
             onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
           />
-          {error && <p className=setup-error>{error}</p>}
-          <button className=login-btn-google type=submit disabled={saving}>
+          {error && <p className="setup-error">{error}</p>}
+          <button className="login-btn-google" type="submit" disabled={saving}>
             {saving ? 'Guardando…' : 'Guardar y continuar'}
           </button>
         </form>
