@@ -9,6 +9,7 @@ export default auth((req) => {
   const session      = req.auth;
   const isLoggedIn   = !!session;
 
+  // NextAuth endpoints — siempre pasar
   if (pathname.startsWith('/api/auth')) return NextResponse.next();
 
   if (pathname === '/login') {
@@ -20,16 +21,23 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
+  // Usuario autenticado: las API routes gestionan su propio acceso
+  if (pathname.startsWith('/api/')) {
+    // Solo restringir rutas de admin
+    if (pathname.startsWith('/api/admin') && !session.user?.isAdmin) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+    return NextResponse.next();
+  }
+
   if (pathname === '/setup') return NextResponse.next();
 
   if (!session.user?.profileComplete) {
     return NextResponse.redirect(new URL('/setup', req.url));
   }
 
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    if (!session.user?.isAdmin) {
-      return NextResponse.redirect(new URL('/', req.url));
-    }
+  if (pathname.startsWith('/admin') && !session.user?.isAdmin) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();
