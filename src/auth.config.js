@@ -3,5 +3,6 @@ const authConfig = {
   providers: [],
   pages: { signIn: '/login' },
   trustHost: true,
+  session: { strategy: 'jwt' },
 };
 export default authConfig;

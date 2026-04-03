@@ -13,7 +13,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, trigger, session }) {
+      // Cuando el cliente llama a session.update(), actualizar el token
+      if (trigger === 'update' && session) {
+        if (session.profileComplete !== undefined) token.profileComplete = session.profileComplete;
+        if (session.firstName)  token.firstName  = session.firstName;
+        if (session.lastName)   token.lastName   = session.lastName;
+        if (session.isAdmin !== undefined) token.isAdmin = session.isAdmin;
+      }
+      // Login inicial con Google
       if (account && profile) {
         await dbConnect();
         const userCount   = await User.countDocuments();
