@@ -1,9 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 export default function SetupPage() {
-  const { update } = useSession();
   const [form, setForm]     = useState({ firstName: '', lastName: '' });
   const [error, setError]   = useState('');
   const [saving, setSaving] = useState(false);
@@ -27,8 +25,7 @@ export default function SetupPage() {
         setSaving(false);
         return;
       }
-      // Actualizar el JWT con profileComplete=true para que el middleware lo vea
-      await update({ profileComplete: true, firstName: form.firstName, lastName: form.lastName });
+      // La API ya puso la cookie wh-setup-done, el middleware dejará pasar
       window.location.href = '/';
     } catch (err) {
       setError('Error inesperado. Inténtalo de nuevo.');

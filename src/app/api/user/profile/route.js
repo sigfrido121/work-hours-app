@@ -30,5 +30,14 @@ export async function POST(req) {
     profileComplete: true,
   });
 
-  return NextResponse.json({ success: true });
+  // Cookie que el middleware lee para saber que el perfil ya está completo
+  // (el JWT se actualiza en el siguiente login; esto es el puente)
+  const res = NextResponse.json({ success: true });
+  res.cookies.set('wh-setup-done', '1', {
+    path:     '/',
+    maxAge:   60 * 60 * 24 * 365,
+    sameSite: 'lax',
+    httpOnly: false,
+  });
+  return res;
 }

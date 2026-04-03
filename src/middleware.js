@@ -9,7 +9,6 @@ export default auth((req) => {
   const session      = req.auth;
   const isLoggedIn   = !!session;
 
-  // NextAuth endpoints — siempre pasar
   if (pathname.startsWith('/api/auth')) return NextResponse.next();
 
   if (pathname === '/login') {
@@ -21,9 +20,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  // Usuario autenticado: las API routes gestionan su propio acceso
+  // Las rutas de API las gestionan ellas mismas
   if (pathname.startsWith('/api/')) {
-    // Solo restringir rutas de admin
     if (pathname.startsWith('/api/admin') && !session.user?.isAdmin) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
@@ -32,7 +30,11 @@ export default auth((req) => {
 
   if (pathname === '/setup') return NextResponse.next();
 
-  if (!session.user?.profileComplete) {
+  // El perfil está completo si el JWT lo dice O si la cookie puente está presente
+  const setupDone = session.user?.profileComplete ||
+                    req.cookies.get('wh-setup-done')?.value === '1';
+
+  if (!setupDone) {
     return NextResponse.redirect(new URL('/setup', req.url));
   }
 
