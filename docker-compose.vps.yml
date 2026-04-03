@@ -1,0 +1,22 @@
+services:
+  web:
+    container_name: work-hours-app
+    build:
+      context: /mnt/miDisco/apps/work-hours-app
+    image: work-hours-web
+    ports:
+      - "3005:3000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+    env_file:
+      - .env.production
+    networks:
+      - gasolina-app_app-network
+      - proxy-net
+    restart: unless-stopped
+
+networks:
+  gasolina-app_app-network:
+    external: true
+  proxy-net:
+    external: true

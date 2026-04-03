@@ -24,7 +24,6 @@ jobs:
           ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.VPS_HOST }} '
             cd /mnt/miDisco/apps/work-hours-app &&
             git pull origin main &&
-            cd /mnt/miDisco/apps/work-hours &&
             docker compose -f docker-compose.vps.yml down &&
             docker compose -f docker-compose.vps.yml build --no-cache &&
             docker compose -f docker-compose.vps.yml up -d
