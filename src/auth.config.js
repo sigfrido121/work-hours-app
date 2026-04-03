@@ -2,5 +2,6 @@
 const authConfig = {
   providers: [],
   pages: { signIn: '/login' },
+  trustHost: true,
 };
 export default authConfig;
