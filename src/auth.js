@@ -13,7 +13,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, trigger, session }) {
+      // session.update() desde el cliente
+      if (trigger === 'update' && session) {
+        if (session.profileComplete !== undefined) token.profileComplete = session.profileComplete;
+        if (session.firstName)  token.firstName  = session.firstName;
+        if (session.lastName)   token.lastName   = session.lastName;
+        return token;
+      }
       // Login inicial con Google
       if (account && profile) {
         await dbConnect();
@@ -37,18 +44,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.profileComplete = dbUser.profileComplete;
         token.firstName       = dbUser.firstName;
         token.lastName        = dbUser.lastName;
-        return token;
-      }
-      // Si el perfil aún no está completo, re-comprobar la BD
-      // (se ejecuta tras guardar en /setup hasta que profileComplete=true)
-      if (token.userId && !token.profileComplete) {
-        await dbConnect();
-        const dbUser = await User.findById(token.userId).lean();
-        if (dbUser?.profileComplete) {
-          token.profileComplete = true;
-          token.firstName       = dbUser.firstName;
-          token.lastName        = dbUser.lastName;
-        }
       }
       return token;
     },

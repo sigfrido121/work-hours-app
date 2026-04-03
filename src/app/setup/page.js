@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function SetupPage() {
+  const { update } = useSession();
   const [form, setForm]     = useState({ firstName: '', lastName: '' });
   const [error, setError]   = useState('');
   const [saving, setSaving] = useState(false);
@@ -13,19 +15,25 @@ export default function SetupPage() {
       return;
     }
     setSaving(true);
-    const res = await fetch('/api/user/profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Error al guardar.');
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Error al guardar.');
+        setSaving(false);
+        return;
+      }
+      // Actualizar el JWT con profileComplete=true para que el middleware lo vea
+      await update({ profileComplete: true, firstName: form.firstName, lastName: form.lastName });
+      window.location.href = '/';
+    } catch (err) {
+      setError('Error inesperado. Inténtalo de nuevo.');
       setSaving(false);
-      return;
     }
-    // Reload duro: el JWT callback re-comprueba la BD y actualiza profileComplete
-    window.location.href = '/';
   };
 
   return (
