@@ -1,18 +1,5 @@
 'use client';
-
-const getMinutes = (time) => {
-    if (!time) return 0;
-    const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
-};
-
-const getEntryMinutes = (entry) => {
-    const mDiff = entry.morning?.enabled !== false
-        ? getMinutes(entry.morning?.end) - getMinutes(entry.morning?.start) : 0;
-    const aDiff = entry.afternoon?.enabled !== false
-        ? getMinutes(entry.afternoon?.end) - getMinutes(entry.afternoon?.start) : 0;
-    return Math.max(0, mDiff) + Math.max(0, aDiff);
-};
+import { entryMinutes } from '@/lib/stats';
 
 const getHeatClass = (totalMinutes) => {
     const h = totalMinutes / 60;
@@ -66,7 +53,7 @@ export default function CalendarView({ entries, currentDate, onDateChange, onDay
     for (let d = 1; d <= daysInMonth; d++) {
         const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const entry  = entryMap[dayStr] || null;
-        const mins   = entry ? getEntryMinutes(entry) : 0;
+        const mins   = entry ? entryMinutes(entry) : 0;
         const heat   = entry ? getHeatClass(mins) : '';
         const isToday = dayStr === todayStr;
 

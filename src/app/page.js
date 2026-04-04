@@ -1,11 +1,10 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import CalendarView from '@/components/CalendarView';
 import EntryModal from '@/components/EntryModal';
 import StatsDashboard from '@/components/StatsDashboard';
-import { downloadCSV } from '@/lib/export';
+import AppHeader from '@/components/AppHeader';
 
 const getTodayStr = () => {
     const n = new Date();
@@ -39,31 +38,13 @@ export default function Home() {
 
     return (
         <div className="app-wrapper">
-            <header className="app-header">
-                <div>
-                    <h1 className="app-title">Horas</h1>
-                    <p className="app-subtitle">
-                        {session?.user?.firstName
-                            ? `${session.user.firstName} ${session.user.lastName}`
-                            : 'Registro de jornadas laborales'}
-                    </p>
-                </div>
-                <div className="header-actions">
-                    <button
-                        className="export-btn"
-                        onClick={() => downloadCSV(visibleEntries)}
-                        disabled={visibleEntries.length === 0}
-                    >
-                        ↓ CSV
-                    </button>
-                    {session?.user?.isAdmin && (
-                        <Link href="/admin" className="export-btn">Admin</Link>
-                    )}
-                    <button className="export-btn" onClick={() => signOut({ callbackUrl: '/login' })}>
-                        Salir
-                    </button>
-                </div>
-            </header>
+            <AppHeader
+                title="Horas"
+                subtitle={session?.user?.firstName
+                    ? `${session.user.firstName} ${session.user.lastName}`
+                    : 'Registro de jornadas laborales'}
+                entries={visibleEntries}
+            />
 
             <StatsDashboard entries={visibleEntries} />
 

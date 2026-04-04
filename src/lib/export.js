@@ -1,7 +1,4 @@
-const getMinutes = (time) => {
-    const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
-};
+import { entryMinutes } from '@/lib/stats';
 
 export const downloadCSV = (entries) => {
     const headers = ['Fecha', 'Mañana Inicio', 'Mañana Fin', 'Tarde Inicio', 'Tarde Fin', 'Nota', 'Total Horas'];
@@ -12,8 +9,7 @@ export const downloadCSV = (entries) => {
         e.afternoon.enabled !== false ? e.afternoon.start : '-',
         e.afternoon.enabled !== false ? e.afternoon.end : '-',
         e.note || '',
-        (((getMinutes(e.morning.end) - getMinutes(e.morning.start)) +
-          (getMinutes(e.afternoon.end) - getMinutes(e.afternoon.start))) / 60).toFixed(2),
+        (entryMinutes(e) / 60).toFixed(2),
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

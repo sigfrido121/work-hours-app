@@ -1,11 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-
-const getMinutes = (time) => {
-    if (!time) return 0;
-    const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
-};
+import TimeSelect from '@/components/TimeSelect';
+import { getMinutes } from '@/lib/stats';
 
 const DEFAULT_MORNING   = { start: '08:00', end: '12:00', enabled: true };
 const DEFAULT_AFTERNOON = { start: '14:00', end: '17:30', enabled: true };
@@ -151,19 +147,15 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                             </label>
                         </div>
                         <div className="shift-times">
-                            <input
-                                type="time"
-                                className="form-input"
+                            <TimeSelect
                                 value={morning.start}
                                 disabled={!morning.enabled}
-                                onChange={(e) => setMorning({ ...morning, start: e.target.value })}
+                                onChange={(v) => setMorning({ ...morning, start: v })}
                             />
-                            <input
-                                type="time"
-                                className="form-input"
+                            <TimeSelect
                                 value={morning.end}
                                 disabled={!morning.enabled}
-                                onChange={(e) => setMorning({ ...morning, end: e.target.value })}
+                                onChange={(v) => setMorning({ ...morning, end: v })}
                             />
                         </div>
                     </div>
@@ -182,19 +174,15 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                             </label>
                         </div>
                         <div className="shift-times">
-                            <input
-                                type="time"
-                                className="form-input"
+                            <TimeSelect
                                 value={afternoon.start}
                                 disabled={!afternoon.enabled}
-                                onChange={(e) => setAfternoon({ ...afternoon, start: e.target.value })}
+                                onChange={(v) => setAfternoon({ ...afternoon, start: v })}
                             />
-                            <input
-                                type="time"
-                                className="form-input"
+                            <TimeSelect
                                 value={afternoon.end}
                                 disabled={!afternoon.enabled}
-                                onChange={(e) => setAfternoon({ ...afternoon, end: e.target.value })}
+                                onChange={(v) => setAfternoon({ ...afternoon, end: v })}
                             />
                         </div>
                     </div>
