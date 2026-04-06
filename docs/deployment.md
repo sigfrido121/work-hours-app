@@ -130,8 +130,20 @@ curl -s -H "Authorization: token <GITHUB_TOKEN>" \
 **Fix**: Eliminar el bloque `environment:` del `docker-compose.vps.yml`.
 
 ### `E11000 duplicate key error` en POST de entries
-**Causa**: `findOneAndUpdate` sin `$set` en el update. MongoDB intenta insertar en vez de actualizar.
+Puede tener dos causas:
+
+**Causa A**: `findOneAndUpdate` sin `$set` en el update. MongoDB intenta insertar en vez de actualizar.
 **Fix**: Usar `{ $set: { ...body, date, userId } }` como segundo argumento.
+
+**Causa B**: Índice obsoleto `date_1` (único solo por fecha) que sobrevive de la versión sin auth.
+El nuevo schema usa un índice compuesto `{ userId, date }` — el índice viejo bloquea cualquier
+fecha ya registrada aunque sea de otro usuario.
+**Fix** (operación única en la BD, ya aplicada):
+```bash
+docker exec gasolina_db mongosh 'mongodb://admin:<pass>@localhost:27017/work-hours?authSource=admin' \
+  --eval 'db.entries.dropIndex("date_1")'
+```
+Índices correctos resultantes: `_id_`, `userId_1`, `userId_1_date_1` (unique).
 
 ### GitHub Actions falla con `Conflict. The container name "/work-hours-app" is already in use`
 **Causa**: Existe un contenedor con ese nombre creado por fuera del compose de Actions
