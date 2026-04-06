@@ -60,7 +60,7 @@ export async function POST(request) {
         date.setUTCHours(0, 0, 0, 0);
         const entry = await Entry.findOneAndUpdate(
             { userId: session.user.id, date },
-            { ...body, date, userId: session.user.id },
+            { $set: { ...body, date, userId: session.user.id } },
             { upsert: true, new: true, runValidators: true }
         );
         return NextResponse.json({ success: true, data: entry });
