@@ -4,7 +4,7 @@ import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 import { downloadCSV } from '@/lib/export';
 
-export default function AppHeader({ title, subtitle, backHref, entries }) {
+export default function AppHeader({ title, subtitle, backHref, entries, adminMode, onToggleAdmin }) {
     const { data: session } = useSession();
 
     return (
@@ -18,7 +18,7 @@ export default function AppHeader({ title, subtitle, backHref, entries }) {
                     <Link href={backHref} className="export-btn">← Volver</Link>
                 ) : (
                     <>
-                        {entries !== undefined && (
+                        {!adminMode && entries !== undefined && (
                             <button
                                 className="export-btn"
                                 onClick={() => downloadCSV(entries)}
@@ -28,7 +28,12 @@ export default function AppHeader({ title, subtitle, backHref, entries }) {
                             </button>
                         )}
                         {session?.user?.isAdmin && (
-                            <Link href="/admin" className="export-btn">Admin</Link>
+                            <button
+                                className={`export-btn${adminMode ? ' export-btn--on' : ''}`}
+                                onClick={onToggleAdmin}
+                            >
+                                {adminMode ? '← Mis horas' : 'Equipo'}
+                            </button>
                         )}
                         <button
                             className="export-btn"

@@ -766,3 +766,167 @@ body {
 .admin-rank-table th { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 0.4rem 0.5rem; text-align: left; }
 .admin-rank-table td { padding: 0.55rem 0.5rem; font-size: 0.85rem; border-top: 1px solid var(--border); }
 .admin-rank-table tr:hover td { background: var(--surface-2); }
+
+/* ── export-btn activo (modo admin encendido) ─────────────── */
+.export-btn--on {
+  background: var(--primary-dim);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── AdminPanel — tarjetas de usuario ─────────────────────── */
+.ap-user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ap-user-card:hover  { border-color: var(--primary); background: var(--surface-2); }
+.ap-user-card:active { background: var(--surface-3); }
+
+.ap-user-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ap-rank {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  min-width: 20px;
+}
+
+.ap-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-dim);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.ap-user-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.ap-user-hours {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--amber);
+  line-height: 1.1;
+}
+
+.ap-user-days {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Barra de progreso */
+.ap-progress-track {
+  height: 3px;
+  background: var(--surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ap-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--amber));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── AdminPanel — vista de detalle ────────────────────────── */
+.ap-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.ap-detail-avatar {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.ap-detail-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ap-detail-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Tarjeta de jornada en detalle */
+.ap-entry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.ap-entry-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ap-entry-date {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.ap-entry-total {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--amber);
+}
+
+.ap-entry-shifts {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ap-entry-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.ap-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 2.5rem 1rem;
+}

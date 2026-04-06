@@ -5,6 +5,7 @@ import CalendarView from '@/components/CalendarView';
 import EntryModal from '@/components/EntryModal';
 import StatsDashboard from '@/components/StatsDashboard';
 import AppHeader from '@/components/AppHeader';
+import AdminPanel from '@/components/AdminPanel';
 
 const getTodayStr = () => {
     const n = new Date();
@@ -17,6 +18,7 @@ export default function Home() {
     const [loading,     setLoading]     = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [modal,       setModal]       = useState({ open: false, entry: null, date: '' });
+    const [adminMode,   setAdminMode]   = useState(false);
 
     const fetchEntries = useCallback(async () => {
         const res  = await fetch('/api/entries?page=1&limit=365');
@@ -40,41 +42,51 @@ export default function Home() {
         <div className="app-wrapper">
             <AppHeader
                 title="Horas"
-                subtitle={session?.user?.firstName
-                    ? `${session.user.firstName} ${session.user.lastName}`
-                    : 'Registro de jornadas laborales'}
+                subtitle={adminMode
+                    ? 'Panel de equipo'
+                    : (session?.user?.firstName
+                        ? `${session.user.firstName} ${session.user.lastName}`
+                        : 'Registro de jornadas laborales')}
                 entries={visibleEntries}
+                adminMode={adminMode}
+                onToggleAdmin={() => setAdminMode(m => !m)}
             />
 
-            <StatsDashboard entries={visibleEntries} />
-
-            {loading ? (
-                <div className="loading-wrap">Cargando…</div>
+            {adminMode ? (
+                <AdminPanel />
             ) : (
-                <CalendarView
-                    entries={entries}
-                    currentDate={currentDate}
-                    onDateChange={setCurrentDate}
-                    onDayClick={openModal}
-                />
+                <>
+                    <StatsDashboard entries={visibleEntries} />
+
+                    {loading ? (
+                        <div className="loading-wrap">Cargando…</div>
+                    ) : (
+                        <CalendarView
+                            entries={entries}
+                            currentDate={currentDate}
+                            onDateChange={setCurrentDate}
+                            onDayClick={openModal}
+                        />
+                    )}
+
+                    <button
+                        className="fab"
+                        onClick={() => openModal(getTodayStr(), null)}
+                        aria-label="Nueva jornada"
+                    >
+                        +
+                    </button>
+
+                    <EntryModal
+                        isOpen={modal.open}
+                        entry={modal.entry}
+                        date={modal.date}
+                        onClose={closeModal}
+                        onSaved={fetchEntries}
+                        onDeleted={fetchEntries}
+                    />
+                </>
             )}
-
-            <button
-                className="fab"
-                onClick={() => openModal(getTodayStr(), null)}
-                aria-label="Nueva jornada"
-            >
-                +
-            </button>
-
-            <EntryModal
-                isOpen={modal.open}
-                entry={modal.entry}
-                date={modal.date}
-                onClose={closeModal}
-                onSaved={fetchEntries}
-                onDeleted={fetchEntries}
-            />
         </div>
     );
 }
