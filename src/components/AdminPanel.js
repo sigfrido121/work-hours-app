@@ -34,8 +34,10 @@ function UserDetail({ user, onBack }) {
 
     useEffect(() => {
         fetch('/api/admin/entries?userId=' + user._id)
-            .then(r => r.json())
-            .then(d => { setEntries(d.data || []); setLoading(false); });
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(d => setEntries(d.data || []))
+            .catch(err => console.error('UserDetail fetch error:', err))
+            .finally(() => setLoading(false));
     }, [user._id]);
 
     const monthEntries = entries
@@ -128,6 +130,7 @@ export default function AdminPanel() {
     const [users,       setUsers]       = useState([]);
     const [allEntries,  setAllEntries]  = useState(null);
     const [loading,     setLoading]     = useState(true);
+    const [error,       setError]       = useState(null);
     const [selected,    setSelected]    = useState(null);
     const [period,      setPeriod]      = useState('month');
     const [customFrom,  setCustomFrom]  = useState('');
@@ -135,16 +138,33 @@ export default function AdminPanel() {
 
     useEffect(() => {
         Promise.all([
-            fetch('/api/admin/users').then(r => r.json()),
-            fetch('/api/admin/entries?all=true').then(r => r.json()),
-        ]).then(([u, e]) => {
-            setUsers(u.data || []);
-            setAllEntries(e.data || []);
-            setLoading(false);
-        });
+            fetch('/api/admin/users').then(r => {
+                if (!r.ok) throw new Error(`users ${r.status}`);
+                return r.json();
+            }),
+            fetch('/api/admin/entries?all=true').then(r => {
+                if (!r.ok) throw new Error(`entries ${r.status}`);
+                return r.json();
+            }),
+        ])
+            .then(([u, e]) => {
+                setUsers(u.data || []);
+                setAllEntries(e.data || []);
+            })
+            .catch(err => {
+                console.error('AdminPanel fetch error:', err);
+                setError(err.message || 'Error al cargar datos');
+                setUsers([]);
+                setAllEntries([]);
+            })
+            .finally(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="loading-wrap">Cargando equipo…</div>;
+    if (error)   return <div className="loading-wrap" style={{ color: 'var(--danger)', flexDirection: 'column', gap: '0.5rem' }}>
+        <span>Error al cargar el panel</span>
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{error}</span>
+    </div>;
 
     if (selected) {
         return <UserDetail user={selected} onBack={() => setSelected(null)} />;
