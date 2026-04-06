@@ -1,8 +1,4 @@
-export const roundToHalf = (mins) => {
-    const h = Math.floor(mins / 60), m = mins % 60;
-    if (m === 0) return mins;
-    return m <= 30 ? h * 60 + 30 : (h + 1) * 60;
-};
+export const roundToQuarter = (mins) => Math.round(mins / 15) * 15;
 
 export const getMinutes = (time) => {
     if (!time) return 0;
@@ -15,7 +11,7 @@ export const entryMinutes = (entry) => {
         ? getMinutes(entry.morning.end) - getMinutes(entry.morning.start) : 0;
     const aDiff = entry.afternoon?.enabled !== false
         ? getMinutes(entry.afternoon.end) - getMinutes(entry.afternoon.start) : 0;
-    return roundToHalf(mDiff + aDiff);
+    return roundToQuarter(mDiff + aDiff);
 };
 
 export const formatMinutes = (totalMinutes) => {
