@@ -1,10 +1,10 @@
-const roundToHalf = (mins) => {
+export const roundToHalf = (mins) => {
     const h = Math.floor(mins / 60), m = mins % 60;
     if (m === 0) return mins;
     return m <= 30 ? h * 60 + 30 : (h + 1) * 60;
 };
 
-const getMinutes = (time) => {
+export const getMinutes = (time) => {
     if (!time) return 0;
     const [h, m] = time.split(':').map(Number);
     return h * 60 + m;
