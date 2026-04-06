@@ -13,7 +13,7 @@ const getHeatClass = (totalMinutes) => {
 const formatHours = (totalMinutes) => {
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
-    return m > 0 ? `${h}.5h` : `${h}h`;
+    return m > 0 ? `${h}h${m}` : `${h}h`;
 };
 
 const MONTH_NAMES = [

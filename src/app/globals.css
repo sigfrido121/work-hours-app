@@ -930,3 +930,118 @@ body {
   font-size: 0.9rem;
   padding: 2.5rem 1rem;
 }
+
+/* ── Sección exportación CSV ──────────────────────────────── */
+.ap-export-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.ap-export-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ap-export-header:hover { background: var(--surface-2); }
+
+.ap-export-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ap-export-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary-dim);
+  border: 1px solid rgba(129,140,248,0.25);
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ap-export-chevron {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  display: block;
+}
+
+.ap-export-body {
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 0.75rem 1rem;
+}
+
+/* Tabla de previsualización */
+.ap-csv-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+
+.ap-csv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.ap-csv-table thead tr {
+  background: var(--surface-2);
+}
+
+.ap-csv-table th {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.ap-csv-table td {
+  padding: 0.45rem 0.6rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+}
+
+.ap-csv-table tbody tr:last-child td { border-bottom: none; }
+.ap-csv-table tbody tr:nth-child(odd)  { background: var(--surface); }
+.ap-csv-table tbody tr:nth-child(even) { background: var(--surface-2); }
+.ap-csv-table tbody tr:hover td { background: var(--primary-dim); color: var(--text); }
+
+.ap-csv-name  { color: var(--text) !important; font-weight: 600; }
+.ap-csv-total { color: var(--amber) !important; font-weight: 700; }
+.ap-csv-nota  { color: var(--text-muted) !important; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+.ap-download-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary-dim);
+  border: 1px solid rgba(129,140,248,0.3);
+  border-radius: 8px;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 0.25rem;
+}
+.ap-download-btn:hover  { background: var(--primary); color: white; border-color: var(--primary); }
+.ap-download-btn:active { opacity: 0.85; }
