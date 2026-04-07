@@ -322,6 +322,7 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.72);
   z-index: 200;
+  touch-action: none;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: bsFadeIn 0.2s ease forwards;
@@ -343,6 +344,7 @@ body {
   animation: bsSlideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   height: 100dvh;
   overflow-y: auto;
+  overscroll-behavior: none;
 }
 
 .bs-handle {
@@ -461,35 +463,60 @@ body {
 }
 
 .shift-times {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.shift-arrow {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 /* ---- TIME SELECT ---- */
 .time-select {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
+  flex: 1;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 .time-select .form-input {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.6rem 0.2rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
   width: auto;
+}
+
+.time-select .form-input:focus {
+  outline: none;
+  border-color: transparent;
+  background: var(--primary-dim);
 }
 
 .time-select-part {
   flex: 1;
-  text-align: center;
-  padding-left: 0.5rem;
-  padding-right: 0.25rem;
+  min-width: 2rem;
   cursor: pointer;
 }
 
 .time-sep {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-dim);
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--primary);
   flex-shrink: 0;
+  padding: 0 1px;
+  pointer-events: none;
 }
 
 /* ---- TOGGLE SWITCH ---- */

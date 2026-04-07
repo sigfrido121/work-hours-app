@@ -36,6 +36,14 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
         }
     }, [isOpen, entry, date]);
 
+    // Bloquear scroll del navegador mientras el modal está abierto
+    useEffect(() => {
+        if (!isOpen) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = prev; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
@@ -167,6 +175,7 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                                 disabled={!morning.enabled}
                                 onChange={(v) => setMorning({ ...morning, start: v })}
                             />
+                            <span className="shift-arrow">→</span>
                             <TimeSelect
                                 value={morning.end}
                                 disabled={!morning.enabled}
@@ -194,6 +203,7 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                                 disabled={!afternoon.enabled}
                                 onChange={(v) => setAfternoon({ ...afternoon, start: v })}
                             />
+                            <span className="shift-arrow">→</span>
                             <TimeSelect
                                 value={afternoon.end}
                                 disabled={!afternoon.enabled}
