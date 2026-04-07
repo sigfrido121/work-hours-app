@@ -6,7 +6,7 @@ import { getMinutes } from '@/lib/stats';
 const DEFAULT_MORNING   = { start: '08:00', end: '12:00', enabled: true };
 const DEFAULT_AFTERNOON = { start: '14:00', end: '17:30', enabled: true };
 
-export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDeleted }) {
+export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDeleted, onNavigate }) {
     const [dateVal,    setDateVal]    = useState(date || '');
     const [morning,    setMorning]    = useState(DEFAULT_MORNING);
     const [afternoon,  setAfternoon]  = useState(DEFAULT_AFTERNOON);
@@ -24,8 +24,9 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
         if (entry) {
             const d = new Date(entry.date);
             setDateVal(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
-            setMorning(entry.morning   || DEFAULT_MORNING);
-            setAfternoon(entry.afternoon || DEFAULT_AFTERNOON);
+            // Usar siempre los valores guardados; si falta el campo, mostrar turno desactivado
+            setMorning(entry.morning   ? { ...entry.morning }   : { ...DEFAULT_MORNING,   enabled: false });
+            setAfternoon(entry.afternoon ? { ...entry.afternoon } : { ...DEFAULT_AFTERNOON, enabled: false });
             setNote(entry.note || '');
         } else {
             setDateVal(date || '');
@@ -114,7 +115,21 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                 </div>
 
                 {displayDate && (
-                    <div className="bs-date-chip">{displayDate}</div>
+                    <div className="bs-date-nav">
+                        <button
+                            type="button"
+                            className="bs-nav-day"
+                            onClick={() => onNavigate?.(dateVal, -1)}
+                            aria-label="Día anterior"
+                        >‹</button>
+                        <div className="bs-date-chip" style={{ margin: 0 }}>{displayDate}</div>
+                        <button
+                            type="button"
+                            className="bs-nav-day"
+                            onClick={() => onNavigate?.(dateVal, +1)}
+                            aria-label="Día siguiente"
+                        >›</button>
+                    </div>
                 )}
 
                 {error   && <div className="alert alert-error">{error}</div>}

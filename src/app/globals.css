@@ -336,12 +336,12 @@ body {
   width: 100%;
   max-width: 480px;
   background: var(--surface);
-  border-radius: 24px 24px 0 0;
+  border-radius: 16px 16px 0 0;
   border-top: 1px solid var(--border-light);
   z-index: 201;
   padding: 0 1.25rem calc(2rem + env(safe-area-inset-bottom));
   animation: bsSlideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-  max-height: 92dvh;
+  height: 100dvh;
   overflow-y: auto;
 }
 
@@ -470,7 +470,7 @@ body {
 .time-select {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .time-select .form-input {
@@ -1045,3 +1045,89 @@ body {
 }
 .ap-download-btn:hover  { background: var(--primary); color: white; border-color: var(--primary); }
 .ap-download-btn:active { opacity: 0.85; }
+
+/* Tabla semanal */
+.ap-section-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.ap-weekly-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ap-weekly-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ap-weekly-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+}
+
+.ap-weekly-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: var(--primary-dim);
+  color: var(--primary);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.ap-weekly-cell-ok    { color: var(--amber) !important; font-weight: 600; }
+.ap-weekly-cell-empty { color: var(--text-muted) !important; font-size: 0.8rem; }
+
+/* ── Navegación día anterior / siguiente en modal ─────────── */
+.bs-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.bs-nav-day {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.bs-nav-day:hover {
+  background: var(--primary-dim);
+  border-color: var(--primary);
+  color: var(--primary);
+}

@@ -38,6 +38,28 @@ export default function Home() {
     const openModal  = (date, entry) => setModal({ open: true, entry: entry || null, date });
     const closeModal = () => setModal({ open: false, entry: null, date: '' });
 
+    const navigateDay = useCallback((currentDateStr, direction) => {
+        const d = new Date(currentDateStr + 'T12:00:00');
+        d.setDate(d.getDate() + direction);
+        const y   = d.getFullYear();
+        const m   = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const newDateStr = `${y}-${m}-${day}`;
+
+        const entry = entries.find(e => {
+            const ed  = new Date(e.date);
+            const eStr = `${ed.getFullYear()}-${String(ed.getMonth() + 1).padStart(2, '0')}-${String(ed.getDate()).padStart(2, '0')}`;
+            return eStr === newDateStr;
+        }) || null;
+
+        // Si el día es de otro mes, actualizar la vista del calendario
+        if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) {
+            setCurrentDate(new Date(y, d.getMonth(), 1));
+        }
+
+        setModal({ open: true, entry, date: newDateStr });
+    }, [entries, currentDate]);
+
     return (
         <div className="app-wrapper">
             <AppHeader
@@ -84,6 +106,7 @@ export default function Home() {
                         onClose={closeModal}
                         onSaved={fetchEntries}
                         onDeleted={fetchEntries}
+                        onNavigate={navigateDay}
                     />
                 </>
             )}
