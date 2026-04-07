@@ -2,32 +2,32 @@
 import { useState, useEffect } from 'react';
 import { entryMinutes, formatMinutes } from '@/lib/stats';
 
-/* ─── Exportación CSV del equipo (vista semanal) ─────────── */
-function getWeekDays(offset = 0) {
-    const now  = new Date();
-    const dow  = now.getDay();
-    const diff = now.getDate() - dow + (dow === 0 ? -6 : 1);
-    const mon  = new Date(now);
-    mon.setDate(diff + offset * 7);
-    mon.setHours(0, 0, 0, 0);
-    return Array.from({ length: 6 }, (_, i) => {
-        const d = new Date(mon);
-        d.setDate(mon.getDate() + i);
-        return d;
-    });
-}
-
+/* ─── Exportación CSV del equipo ─────────────────────────── */
 const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 function ExportSection({ allEntries, users }) {
-    const [open,   setOpen]   = useState(true);
+    // Semana actual en UTC para evitar bugs de timezone
+    const getUTCWeekDays = (offset = 0) => {
+        const now = new Date();
+        const dow = now.getUTCDay();
+        const diff = (dow === 0 ? -6 : 1) - dow;
+        const monUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + diff + offset * 7);
+        return Array.from({ length: 6 }, (_, i) => {
+            const d = new Date(monUTC + i * 86400000);
+            return d.toISOString().slice(0, 10); // YYYY-MM-DD en UTC
+        });
+    };
+
     const [offset, setOffset] = useState(0);
+    const days = getUTCWeekDays(offset);
 
-    const days = getWeekDays(offset);
-    const fmtDay = d => d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-    const weekLabel = `${fmtDay(days[0])} – ${fmtDay(days[5])} ${days[5].getFullYear()}`;
+    const fmtKey = key => {
+        const [, m, d] = key.split('-');
+        return `${d}/${m}`;
+    };
+    const weekLabel = `${fmtKey(days[0])} – ${fmtKey(days[5])} ${days[5].slice(0, 4)}`;
 
-    // mapa: userId → dateKey → minutos
+    // mapa: userId → dateKey (UTC) → minutos
     const entryMap = {};
     for (const e of allEntries) {
         const uid = String(e.userId);
@@ -37,99 +37,48 @@ function ExportSection({ allEntries, users }) {
     }
 
     const download = () => {
-        const headers = ['Nombre', ...days.map((d, i) => `${DAY_NAMES[i]} ${fmtDay(d)}`), 'Total horas'];
+        const headers = ['Nombre', ...days.map((key, i) => `${DAY_NAMES[i]} ${fmtKey(key)}`), 'Total horas'];
         const csvRows = users.map(u => {
             const uid   = String(u._id);
-            const cells = days.map(d => {
-                const mins = entryMap[uid]?.[d.toISOString().slice(0, 10)];
-                return mins != null ? (mins / 60).toFixed(2) : '—';
+            const cells = days.map(key => {
+                const mins = entryMap[uid]?.[key];
+                return mins != null ? (mins / 60).toFixed(2) : '';
             });
-            const totalMins = days.reduce((s, d) => s + (entryMap[uid]?.[d.toISOString().slice(0, 10)] ?? 0), 0);
-            return [`"${(`${u.firstName} ${u.lastName}`).trim()}"`, ...cells, totalMins ? (totalMins / 60).toFixed(2) + 'h' : '—'];
+            const totalMins = days.reduce((s, key) => s + (entryMap[uid]?.[key] ?? 0), 0);
+            return [`"${(`${u.firstName} ${u.lastName}`).trim()}"`, ...cells, totalMins ? (totalMins / 60).toFixed(2) : ''];
         });
         const csv = [headers.join(','), ...csvRows.map(r => r.join(','))].join('\n');
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `semana_${days[0].toISOString().slice(0, 10)}.csv`;
+        link.download = `semana_${days[0]}.csv`;
         link.click();
     };
 
     return (
         <div className="ap-export-section">
-            <button className="ap-export-header" onClick={() => setOpen(o => !o)}>
+            <div className="ap-export-header" style={{ cursor: 'default' }}>
                 <div className="ap-export-title">
                     <span className="ap-export-icon">↓</span>
                     <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>Exportar CSV</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>Exportar CSV semanal</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 1 }}>
-                            Vista semanal · {users.length} usuarios
+                            {users.length} usuarios
                         </div>
                     </div>
                 </div>
-                <span className="ap-export-chevron" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>›</span>
-            </button>
-
-            {open && (
-                <div className="ap-export-body">
-                    {/* Navegación de semana */}
-                    <div className="ap-weekly-nav" style={{ marginBottom: '0.75rem' }}>
-                        <button className="cal-nav-btn" onClick={() => setOffset(o => o - 1)}>‹</button>
-                        <div className="ap-weekly-label">
-                            <span className="ap-weekly-tag">Semana</span>
-                            {weekLabel}
-                        </div>
-                        <button className="cal-nav-btn" onClick={() => setOffset(o => o + 1)}>›</button>
-                    </div>
-
-                    {/* Tabla semanal */}
-                    <div className="ap-csv-table-wrap">
-                        <table className="ap-csv-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ minWidth: 120 }}>Nombre</th>
-                                    {days.map((d, i) => (
-                                        <th key={i} style={{ textAlign: 'center', minWidth: 64 }}>
-                                            <div>{DAY_NAMES[i]}</div>
-                                            <div style={{ fontWeight: 400, fontSize: '0.65rem', color: 'var(--text-dim)', marginTop: 1 }}>
-                                                {fmtDay(d)}
-                                            </div>
-                                        </th>
-                                    ))}
-                                    <th style={{ textAlign: 'center' }}>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(u => {
-                                    const uid      = String(u._id);
-                                    const totalMin = days.reduce((s, d) => s + (entryMap[uid]?.[d.toISOString().slice(0, 10)] ?? 0), 0);
-                                    return (
-                                        <tr key={uid}>
-                                            <td className="ap-csv-name">{u.firstName} {u.lastName}</td>
-                                            {days.map((d, i) => {
-                                                const mins = entryMap[uid]?.[d.toISOString().slice(0, 10)];
-                                                return (
-                                                    <td key={i} style={{ textAlign: 'center' }}
-                                                        className={mins ? 'ap-weekly-cell-ok' : 'ap-weekly-cell-empty'}>
-                                                        {mins ? formatMinutes(mins) : '—'}
-                                                    </td>
-                                                );
-                                            })}
-                                            <td className="ap-csv-total" style={{ textAlign: 'center' }}>
-                                                {totalMin ? formatMinutes(totalMin) : '—'}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <button className="ap-download-btn" onClick={download}>
-                        ↓ Descargar CSV semana
-                    </button>
+                {/* Navegación de semana */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button className="cal-nav-btn" onClick={() => setOffset(o => o - 1)}>‹</button>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', minWidth: 110, textAlign: 'center' }}>{weekLabel}</span>
+                    <button className="cal-nav-btn" onClick={() => setOffset(o => o + 1)}>›</button>
                 </div>
-            )}
+            </div>
+            <div style={{ padding: '0.75rem 1rem' }}>
+                <button className="ap-download-btn" style={{ width: '100%' }} onClick={download}>
+                    ↓ Descargar CSV semana {weekLabel}
+                </button>
+            </div>
         </div>
     );
 }
