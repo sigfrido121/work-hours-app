@@ -420,7 +420,7 @@ body {
   padding: 0.75rem 1rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   color: var(--text);
   font-size: 1rem;
   transition: border-color 0.15s;
@@ -435,41 +435,46 @@ body {
 .shift-block {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.9rem 1rem;
-  margin-bottom: 0.6rem;
-  transition: opacity 0.2s, border-color 0.2s;
+  border-radius: 14px;
+  padding: 0.85rem 1rem 1rem;
+  margin-bottom: 0.5rem;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .shift-block.is-enabled {
-  border-color: rgba(129, 140, 248, 0.3);
+  border-color: rgba(129, 140, 248, 0.4);
+  background: linear-gradient(145deg, var(--surface-2) 60%, rgba(129,140,248,0.06) 100%);
 }
 
 .shift-block.is-disabled {
-  opacity: 0.45;
+  opacity: 0.38;
 }
 
 .shift-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .shift-name {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
+/* ---- SHIFT TIMES ---- */
 .shift-times {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
 .shift-arrow {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   flex-shrink: 0;
 }
@@ -478,45 +483,47 @@ body {
 .time-select {
   display: inline-flex;
   align-items: center;
-  gap: 0;
-  flex: 1;
   background: var(--surface-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
   overflow: hidden;
 }
 
-.time-select .form-input {
+.time-select-part {
+  -webkit-appearance: none;
+  appearance: none;
   background: transparent;
   border: none;
-  border-radius: 0;
-  padding: 0.6rem 0.2rem;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 700;
   color: var(--text);
-  width: auto;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  text-align: center;
+  width: 2.5rem;
+  padding: 0.55rem 0;
+  cursor: pointer;
+  transition: background 0.15s;
+  outline: none;
 }
 
-.time-select .form-input:focus {
-  outline: none;
-  border-color: transparent;
+.time-select-part:focus {
   background: var(--primary-dim);
 }
 
-.time-select-part {
-  flex: 1;
-  min-width: 2rem;
-  cursor: pointer;
+.time-select-part:disabled {
+  cursor: default;
 }
 
 .time-sep {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: var(--primary);
   flex-shrink: 0;
-  padding: 0 1px;
+  user-select: none;
   pointer-events: none;
+  margin: 0 -1px;
+  padding-bottom: 2px;
 }
 
 /* ---- TOGGLE SWITCH ---- */
@@ -577,12 +584,13 @@ body {
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  letter-spacing: 0.01em;
 }
 
 .btn-save:active {

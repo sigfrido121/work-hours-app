@@ -144,17 +144,8 @@ export default function EntryModal({ isOpen, entry, date, onClose, onSaved, onDe
                 {success && <div className="alert alert-success">{success}</div>}
 
                 <form onSubmit={handleSubmit}>
-                    {/* Date (hidden when tapped from calendar, visible for manual entry) */}
-                    <div className="form-group">
-                        <label className="form-label">Fecha</label>
-                        <input
-                            type="date"
-                            className="form-input"
-                            value={dateVal}
-                            onChange={(e) => setDateVal(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {/* Fecha oculta — la fecha se gestiona con el chip + navegación ‹ › */}
+                    <input type="hidden" value={dateVal} readOnly />
 
                     {/* Morning shift */}
                     <div className={`shift-block ${morning.enabled ? 'is-enabled' : 'is-disabled'}`}>

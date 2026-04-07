@@ -14,7 +14,6 @@ export default function TimeSelect({ value, onChange, disabled }) {
     const [h, m] = value ? value.split(':') : ['08', '00'];
     const snapped = snapMinute(m);
 
-    // Si la entrada existente tiene un minuto que no es múltiplo de 15, lo corrige silenciosamente
     useEffect(() => {
         if (snapped !== m) onChange(`${h}:${snapped}`);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -22,7 +21,7 @@ export default function TimeSelect({ value, onChange, disabled }) {
     return (
         <div className="time-select">
             <select
-                className="form-input time-select-part"
+                className="time-select-part"
                 value={h}
                 disabled={disabled}
                 onChange={(e) => onChange(`${e.target.value}:${snapped}`)}
@@ -31,7 +30,7 @@ export default function TimeSelect({ value, onChange, disabled }) {
             </select>
             <span className="time-sep">:</span>
             <select
-                className="form-input time-select-part"
+                className="time-select-part"
                 value={snapped}
                 disabled={disabled}
                 onChange={(e) => onChange(`${h}:${e.target.value}`)}
