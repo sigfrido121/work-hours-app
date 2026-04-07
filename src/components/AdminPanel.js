@@ -2,42 +2,58 @@
 import { useState, useEffect } from 'react';
 import { entryMinutes, formatMinutes } from '@/lib/stats';
 
-/* ─── Exportación CSV del equipo ─────────────────────────── */
-function ExportSection({ entries, users, period, customFrom, customTo }) {
-    const [open, setOpen] = useState(false);
+/* ─── Exportación CSV del equipo (vista semanal) ─────────── */
+function getWeekDays(offset = 0) {
+    const now  = new Date();
+    const dow  = now.getDay();
+    const diff = now.getDate() - dow + (dow === 0 ? -6 : 1);
+    const mon  = new Date(now);
+    mon.setDate(diff + offset * 7);
+    mon.setHours(0, 0, 0, 0);
+    return Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        return d;
+    });
+}
 
-    const userMap = {};
-    for (const u of users) userMap[String(u._id)] = `${u.firstName} ${u.lastName}`.trim();
+const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-    const rows = [...entries]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .map(e => ({
-            usuario: userMap[String(e.userId)] || '—',
-            fecha:   new Date(e.date).toLocaleDateString('es-ES'),
-            mIni:    e.morning?.enabled  ? e.morning.start    : '—',
-            mFin:    e.morning?.enabled  ? e.morning.end      : '—',
-            tIni:    e.afternoon?.enabled ? e.afternoon.start : '—',
-            tFin:    e.afternoon?.enabled ? e.afternoon.end   : '—',
-            total:   (entryMinutes(e) / 60).toFixed(2) + 'h',
-            nota:    e.note || '',
-        }));
+function ExportSection({ allEntries, users }) {
+    const [open,   setOpen]   = useState(true);
+    const [offset, setOffset] = useState(0);
 
-    const periodLabel = {
-        week: 'semana-actual', month: 'mes-actual', custom: `${customFrom}_${customTo}`,
-    }[period] || 'periodo';
+    const days = getWeekDays(offset);
+    const fmtDay = d => d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+    const weekLabel = `${fmtDay(days[0])} – ${fmtDay(days[5])} ${days[5].getFullYear()}`;
+
+    // mapa: userId → dateKey → minutos
+    const entryMap = {};
+    for (const e of allEntries) {
+        const uid = String(e.userId);
+        const key = new Date(e.date).toISOString().slice(0, 10);
+        if (!entryMap[uid]) entryMap[uid] = {};
+        entryMap[uid][key] = entryMinutes(e);
+    }
 
     const download = () => {
-        const headers = ['Usuario','Fecha','Mañana inicio','Mañana fin','Tarde inicio','Tarde fin','Total horas','Nota'];
-        const csvRows = rows.map(r => [r.usuario, r.fecha, r.mIni, r.mFin, r.tIni, r.tFin, r.total, `"${r.nota}"`]);
+        const headers = ['Nombre', ...days.map((d, i) => `${DAY_NAMES[i]} ${fmtDay(d)}`), 'Total horas'];
+        const csvRows = users.map(u => {
+            const uid   = String(u._id);
+            const cells = days.map(d => {
+                const mins = entryMap[uid]?.[d.toISOString().slice(0, 10)];
+                return mins != null ? (mins / 60).toFixed(2) : '—';
+            });
+            const totalMins = days.reduce((s, d) => s + (entryMap[uid]?.[d.toISOString().slice(0, 10)] ?? 0), 0);
+            return [`"${(`${u.firstName} ${u.lastName}`).trim()}"`, ...cells, totalMins ? (totalMins / 60).toFixed(2) + 'h' : '—'];
+        });
         const csv = [headers.join(','), ...csvRows.map(r => r.join(','))].join('\n');
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `equipo_${periodLabel}.csv`;
+        link.download = `semana_${days[0].toISOString().slice(0, 10)}.csv`;
         link.click();
     };
-
-    const preview = rows.slice(0, 6);
 
     return (
         <div className="ap-export-section">
@@ -47,7 +63,7 @@ function ExportSection({ entries, users, period, customFrom, customTo }) {
                     <div>
                         <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>Exportar CSV</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 1 }}>
-                            {rows.length} jornadas · {users.length} usuarios
+                            Vista semanal · {users.length} usuarios
                         </div>
                     </div>
                 </div>
@@ -56,46 +72,62 @@ function ExportSection({ entries, users, period, customFrom, customTo }) {
 
             {open && (
                 <div className="ap-export-body">
-                    {/* Previsualización */}
-                    {rows.length === 0 ? (
-                        <p className="ap-empty" style={{ padding: '1rem 0' }}>Sin datos en este período</p>
-                    ) : (
-                        <>
-                            <div className="ap-csv-table-wrap">
-                                <table className="ap-csv-table">
-                                    <thead>
-                                        <tr>
-                                            {['Usuario','Fecha','☀ Inicio','☀ Fin','◑ Inicio','◑ Fin','Total','Nota'].map(h => (
-                                                <th key={h}>{h}</th>
-                                            ))}
+                    {/* Navegación de semana */}
+                    <div className="ap-weekly-nav" style={{ marginBottom: '0.75rem' }}>
+                        <button className="cal-nav-btn" onClick={() => setOffset(o => o - 1)}>‹</button>
+                        <div className="ap-weekly-label">
+                            <span className="ap-weekly-tag">Semana</span>
+                            {weekLabel}
+                        </div>
+                        <button className="cal-nav-btn" onClick={() => setOffset(o => o + 1)}>›</button>
+                    </div>
+
+                    {/* Tabla semanal */}
+                    <div className="ap-csv-table-wrap">
+                        <table className="ap-csv-table">
+                            <thead>
+                                <tr>
+                                    <th style={{ minWidth: 120 }}>Nombre</th>
+                                    {days.map((d, i) => (
+                                        <th key={i} style={{ textAlign: 'center', minWidth: 64 }}>
+                                            <div>{DAY_NAMES[i]}</div>
+                                            <div style={{ fontWeight: 400, fontSize: '0.65rem', color: 'var(--text-dim)', marginTop: 1 }}>
+                                                {fmtDay(d)}
+                                            </div>
+                                        </th>
+                                    ))}
+                                    <th style={{ textAlign: 'center' }}>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map(u => {
+                                    const uid      = String(u._id);
+                                    const totalMin = days.reduce((s, d) => s + (entryMap[uid]?.[d.toISOString().slice(0, 10)] ?? 0), 0);
+                                    return (
+                                        <tr key={uid}>
+                                            <td className="ap-csv-name">{u.firstName} {u.lastName}</td>
+                                            {days.map((d, i) => {
+                                                const mins = entryMap[uid]?.[d.toISOString().slice(0, 10)];
+                                                return (
+                                                    <td key={i} style={{ textAlign: 'center' }}
+                                                        className={mins ? 'ap-weekly-cell-ok' : 'ap-weekly-cell-empty'}>
+                                                        {mins ? formatMinutes(mins) : '—'}
+                                                    </td>
+                                                );
+                                            })}
+                                            <td className="ap-csv-total" style={{ textAlign: 'center' }}>
+                                                {totalMin ? formatMinutes(totalMin) : '—'}
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {preview.map((r, i) => (
-                                            <tr key={i}>
-                                                <td className="ap-csv-name">{r.usuario}</td>
-                                                <td>{r.fecha}</td>
-                                                <td>{r.mIni}</td>
-                                                <td>{r.mFin}</td>
-                                                <td>{r.tIni}</td>
-                                                <td>{r.tFin}</td>
-                                                <td className="ap-csv-total">{r.total}</td>
-                                                <td className="ap-csv-nota">{r.nota || <span style={{color:'var(--text-muted)'}}>—</span>}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {rows.length > 6 && (
-                                <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.4rem 0 0.75rem' }}>
-                                    … y {rows.length - 6} filas más
-                                </p>
-                            )}
-                            <button className="ap-download-btn" onClick={download}>
-                                ↓ Descargar CSV completo ({rows.length} filas)
-                            </button>
-                        </>
-                    )}
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button className="ap-download-btn" onClick={download}>
+                        ↓ Descargar CSV semana
+                    </button>
                 </div>
             )}
         </div>
@@ -375,14 +407,11 @@ export default function AdminPanel() {
                 })}
             </div>
 
-            {/* Exportación CSV */}
-            <div style={{ marginTop: '1.25rem' }}>
+            {/* Exportación CSV semanal */}
+            <div style={{ marginTop: '1.5rem' }}>
                 <ExportSection
-                    entries={filtered}
+                    allEntries={allEntries || []}
                     users={users}
-                    period={period}
-                    customFrom={customFrom}
-                    customTo={customTo}
                 />
             </div>
         </div>

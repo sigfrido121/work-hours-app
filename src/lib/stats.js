@@ -7,11 +7,11 @@ export const getMinutes = (time) => {
 };
 
 export const entryMinutes = (entry) => {
-    const mDiff = entry.morning?.enabled !== false
+    const mDiff = entry.morning?.enabled
         ? getMinutes(entry.morning.end) - getMinutes(entry.morning.start) : 0;
-    const aDiff = entry.afternoon?.enabled !== false
+    const aDiff = entry.afternoon?.enabled
         ? getMinutes(entry.afternoon.end) - getMinutes(entry.afternoon.start) : 0;
-    return roundToQuarter(mDiff + aDiff);
+    return mDiff + aDiff;
 };
 
 export const formatMinutes = (totalMinutes) => {
