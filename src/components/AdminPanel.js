@@ -57,23 +57,67 @@ function ExportSection({ allEntries, users }) {
 
     return (
         <div className="ap-export-section">
+            {/* Cabecera con navegación de semana */}
             <div className="ap-export-header" style={{ cursor: 'default' }}>
                 <div className="ap-export-title">
                     <span className="ap-export-icon">↓</span>
                     <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>Exportar CSV semanal</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>Resumen semanal</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 1 }}>
                             {users.length} usuarios
                         </div>
                     </div>
                 </div>
-                {/* Navegación de semana */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <button className="cal-nav-btn" onClick={() => setOffset(o => o - 1)}>‹</button>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', minWidth: 110, textAlign: 'center' }}>{weekLabel}</span>
                     <button className="cal-nav-btn" onClick={() => setOffset(o => o + 1)}>›</button>
                 </div>
             </div>
+
+            {/* Tabla semanal: 1 fila por usuario */}
+            <div className="ap-csv-table-wrap">
+                <table className="ap-csv-table">
+                    <thead>
+                        <tr>
+                            <th style={{ minWidth: 120 }}>Nombre</th>
+                            {days.map((key, i) => (
+                                <th key={key} style={{ textAlign: 'center', minWidth: 64 }}>
+                                    <div>{DAY_NAMES[i]}</div>
+                                    <div style={{ fontWeight: 400, fontSize: '0.65rem', color: 'var(--text-dim)', marginTop: 1 }}>
+                                        {fmtKey(key)}
+                                    </div>
+                                </th>
+                            ))}
+                            <th style={{ textAlign: 'center' }}>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {users.map(u => {
+                            const uid      = String(u._id);
+                            const totalMin = days.reduce((s, key) => s + (entryMap[uid]?.[key] ?? 0), 0);
+                            return (
+                                <tr key={uid}>
+                                    <td className="ap-csv-name">{u.firstName} {u.lastName}</td>
+                                    {days.map(key => {
+                                        const mins = entryMap[uid]?.[key];
+                                        return (
+                                            <td key={key} style={{ textAlign: 'center' }}
+                                                className={mins ? 'ap-weekly-cell-ok' : 'ap-weekly-cell-empty'}>
+                                                {mins ? formatMinutes(mins) : '—'}
+                                            </td>
+                                        );
+                                    })}
+                                    <td className="ap-csv-total" style={{ textAlign: 'center' }}>
+                                        {totalMin ? formatMinutes(totalMin) : '—'}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+
             <div style={{ padding: '0.75rem 1rem' }}>
                 <button className="ap-download-btn" style={{ width: '100%' }} onClick={download}>
                     ↓ Descargar CSV semana {weekLabel}
